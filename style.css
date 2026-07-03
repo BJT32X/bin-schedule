@@ -1,1 +1,91 @@
-style.css
+// ====== 8个人名单（你只需要改这里）======
+const people = [
+  "Alex",
+  "Ben",
+  "Cindy",
+  "David",
+  "Eric",
+  "Fiona",
+  "Grace",
+  "Henry"
+];
+
+// ====== 起始周（决定谁是第1个）======
+const startDate = new Date("2026-01-05"); // 改这里
+
+// ====== 垃圾桶循环 ======
+const bins = ["🟡 Yellow", "🟢 Green", "🟤 Brown"];
+
+// 今天
+const today = new Date();
+
+// 计算第几周
+function getWeekIndex(date) {
+  const diff = date - startDate;
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
+}
+
+// 当前周
+const weekIndex = getWeekIndex(today);
+
+// 本周负责人
+const person = people[weekIndex % people.length];
+
+// 本周垃圾桶
+const bin = bins[weekIndex % bins.length];
+
+// 下周
+const nextPerson = people[(weekIndex + 1) % people.length];
+const nextBin = bins[(weekIndex + 1) % bins.length];
+
+// 显示信息
+document.getElementById("info").innerHTML = `
+  <h2>📅 本周信息</h2>
+  <p><b>负责人：</b> ${person}</p>
+  <p><b>垃圾桶：</b> ${bin}</p>
+
+  <hr>
+
+  <h3>➡️ 下周</h3>
+  <p><b>负责人：</b> ${nextPerson}</p>
+  <p><b>垃圾桶：</b> ${nextBin}</p>
+`;
+
+// ====== 日历生成 ======
+function generateCalendar(year, month, id) {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  let html = `<div class="calendar"><h3>${year} / ${month + 1}</h3>`;
+  html += `<table><tr>
+    <th>日</th><th>一</th><th>二</th><th>三</th>
+    <th>四</th><th>五</th><th>六</th>
+  </tr><tr>`;
+
+  for (let i = 0; i < firstDay.getDay(); i++) {
+    html += "<td></td>";
+  }
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    let date = new Date(year, month, d);
+
+    let cls = "";
+    if (date.toDateString() === today.toDateString()) {
+      cls = "today";
+    }
+
+    html += `<td class="${cls}">${d}</td>`;
+
+    if (date.getDay() === 6) html += "</tr><tr>";
+  }
+
+  html += "</tr></table></div>";
+  document.getElementById(id).innerHTML = html;
+}
+
+// 本月 + 下月
+const y = today.getFullYear();
+const m = today.getMonth();
+
+generateCalendar(y, m, "calendar1");
+generateCalendar(y, m + 1, "calendar2");
