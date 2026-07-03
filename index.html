@@ -1,21 +1,156 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>垃圾桶轮值系统</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>垃圾桶轮值系统</title>
+
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+h1 {
+  background: #222;
+  color: white;
+  padding: 15px;
+  margin: 0;
+}
+
+.card {
+  background: white;
+  margin: 15px auto;
+  padding: 15px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px;
+}
+
+.day {
+  padding: 8px;
+  background: #eee;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.today {
+  background: yellow;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 14px;
+  color: #333;
+}
+</style>
 </head>
+
 <body>
 
 <h1>🗑️ 垃圾桶轮值系统</h1>
 
-<div id="info"></div>
+<div class="card" id="info"></div>
 
-<div class="container">
-  <div id="calendar1"></div>
-  <div id="calendar2"></div>
+<div class="card">
+  <h3>📅 本月</h3>
+  <div class="calendar" id="cal1"></div>
 </div>
 
-<script src="script.js"></script>
+<div class="card">
+  <h3>📅 下月</h3>
+  <div class="calendar" id="cal2"></div>
+</div>
+
+<script>
+// ====== 8人名单（只改这里）======
+const people = [
+  "Alex",
+  "Ben",
+  "Cindy",
+  "David",
+  "Eric",
+  "Fiona",
+  "Grace",
+  "Henry"
+];
+
+// 起始周（决定轮班从谁开始）
+const startDate = new Date("2026-01-05");
+
+// 垃圾桶循环
+const bins = ["🟡 Yellow", "🟢 Green", "🟤 Brown"];
+
+const today = new Date();
+
+// 计算周数
+function weekIndex(date) {
+  return Math.floor((date - startDate) / (1000*60*60*24*7));
+}
+
+const w = weekIndex(today);
+
+// 本周
+const person = people[w % people.length];
+const bin = bins[w % bins.length];
+
+// 下周
+const nextPerson = people[(w+1) % people.length];
+const nextBin = bins[(w+1) % bins.length];
+
+// 显示信息
+document.getElementById("info").innerHTML = `
+<h2>📅 本周安排</h2>
+<p class="small">负责人：<b>${person}</b></p>
+<p class="small">垃圾桶：<b>${bin}</b></p>
+
+<hr>
+
+<h3>➡️ 下周</h3>
+<p class="small">负责人：<b>${nextPerson}</b></p>
+<p class="small">垃圾桶：<b>${nextBin}</b></p>
+`;
+
+// 日历生成
+function renderCalendar(el, year, month) {
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month+1, 0);
+
+  let html = "";
+
+  for (let i = 0; i < first.getDay(); i++) {
+    html += `<div></div>`;
+  }
+
+  for (let d = 1; d <= last.getDate(); d++) {
+    const date = new Date(year, month, d);
+
+    let cls = "day";
+    if (date.toDateString() === today.toDateString()) {
+      cls += " today";
+    }
+
+    html += `<div class="${cls}">${d}</div>`;
+  }
+
+  document.getElementById(el).innerHTML = html;
+}
+
+const y = today.getFullYear();
+const m = today.getMonth();
+
+renderCalendar("cal1", y, m);
+renderCalendar("cal2", y, m+1);
+</script>
+
 </body>
 </html>
